@@ -1,10 +1,20 @@
 const router = require("express").Router();
-router.get("/test", (req, res) => {
-  res.send("User test successful");
+const User = require("../models/User");
+
+router.post("/register", async (req, res) => {
+  await User.create(req.body);
+  res.send("User inserted");
 });
 
-router.post("/userposttest", (req, res) => {
-  const username = req.body.username;
-  res.send("User test successful. Username: " + username);
+router.get("/all", async (req, res) => {
+  const users = await User.findAll();
+  res.send(users);
 });
+
+router.get("/:username", async (req, res) => {
+  let user = await User.findByPk(req.params.username);
+  if (!user) return res.status(404).send("User not found");
+  else res.send(user);
+});
+
 module.exports = router;
