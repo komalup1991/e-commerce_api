@@ -3,11 +3,13 @@ const app = express();
 const dotenv = require("dotenv");
 const userRoute = require("./routes/user");
 const sequelize = require("./db/database");
+const userAuth = require("./routes/auth");
 
 dotenv.config();
 
 app.use(express.json());
 app.use("/api/users", userRoute);
+app.use("/api/auth", userAuth);
 
 sequelize.sync().then(() => {
   console.log("Database Initialized!!");
