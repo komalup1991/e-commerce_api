@@ -26,74 +26,30 @@ router.put(
     authenticateTokenAndAuthorization,
     validateSchema.validate(updateProductSchema),
   ],
-  async (req, res) => {
-    try {
-      let product = await Product.findByPk(req.params.id);
-      product.set({ ...req.body });
-      product.save();
-      res.status(200).json(product);
-    } catch (err) {
-      res.status(500).json(product);
-    }
-  },
+  ProductController.updateProduct,
 );
 
 // Get all products
-router.get("/all", authenticateTokenAndAdmin, async (req, res) => {
-  const product = await Product.findAll();
-  res.send(product);
-});
+router.get("/all", authenticateTokenAndAdmin, ProductController.getAllProducts);
 
 // Get product by id
-router.get("/:id", authenticateTokenAndAuthorization, async (req, res) => {
-  let product = await Product.findByPk(req.params.id);
-  if (!product) {
-    return res.status(404).send("Product not found");
-  } else {
-    res.send(product);
-  }
-});
+router.get(
+  "/:id",
+  authenticateTokenAndAuthorization,
+  ProductController.getProductById,
+);
 
 // Delete product
-router.delete("/:id", authenticateTokenAndAuthorization, async (req, res) => {
-  try {
-    await Product.destroy({ where: { id: req.params.id } });
-    res.status(200).json("Product is deleted");
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
+router.delete(
+  "/:id",
+  authenticateTokenAndAuthorization,
+  ProductController.deleteProduct,
+);
 
 // search with keyword
-router.get("/p/search", async (req, res) => {
-  let product = await Product.findAll({
-    where: {
-      name: { [Op.like]: `%${req.query.key}%` },
-    },
-  });
-  if (!product || product.length === 0) {
-    return res.status(404).send("Products not found");
-  } else {
-    res.send(product);
-  }
-});
+router.get("/p/search", ProductController.searchProduct);
 
 // filter by category and price
-router.get("/p/filter", async (req, res) => {
-  let product = await Product.findAll({
-    where: {
-      category: req.query.category ? req.query.category : { [Op.ne]: null },
-      price:
-        req.query.from && req.query.to
-          ? { [Op.between]: [`${req.query.from}`, `${req.query.to}`] }
-          : { [Op.ne]: null },
-    },
-  });
-  if (!product || product.length === 0) {
-    return res.status(404).send("Products not found");
-  } else {
-    res.send(product);
-  }
-});
+router.get("/p/filter", ProductController.filterProduct);
 
 module.exports = router;

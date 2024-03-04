@@ -22,6 +22,70 @@ const addProduct = async (req, res) => {
   res.send(product);
 };
 
+const updateProduct = async (req, res) => {
+  try {
+    let product = await Product.findByPk(req.params.id);
+    product.set({ ...req.body });
+    product.save();
+    res.status(200).json(product);
+  } catch (err) {
+    res.status(500).json(product);
+  }
+};
+
+const deleteProduct = async (req, res) => {
+  try {
+    await Product.destroy({ where: { id: req.params.id } });
+    res.status(200).json("Product is deleted");
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+const getAllProducts = async (req, res) => {
+  const product = await Product.findAll();
+  res.send(product);
+};
+
+const getProductById = async (req, res) => {
+  let product = await Product.findByPk(req.params.id);
+  if (!product) {
+    return res.status(404).send("Product not found");
+  } else {
+    res.send(product);
+  }
+};
+
+const searchProduct = async (req, res) => {
+  let product = await Product.findAll({
+    where: {
+      name: { [Op.like]: `%${req.query.key}%` },
+    },
+  });
+  if (!product || product.length === 0) {
+    return res.status(404).send("Products not found");
+  } else {
+    res.send(product);
+  }
+};
+
+const filterProduct = async (req, res) => {
+  let product = await Product.findAll({
+    where: {
+      category: req.query.category ? req.query.category : { [Op.ne]: null },
+      price:
+        req.query.from && req.query.to
+          ? { [Op.between]: [`${req.query.from}`, `${req.query.to}`] }
+          : { [Op.ne]: null },
+    },
+  });
+  if (!product || product.length === 0) {
+    return res.status(404).send("Products not found");
+  } else {
+    res.send(product);
+  }
+};
+
 const getImagePath = (req) => {
   return "Images/" + req.file.filename;
 };
@@ -50,4 +114,14 @@ const uploadProductImage = multer({
   },
 }).single("image");
 
-module.exports = { findAllProducts, addProduct, uploadProductImage };
+module.exports = {
+  findAllProducts,
+  addProduct,
+  uploadProductImage,
+  updateProduct,
+  deleteProduct,
+  searchProduct,
+  filterProduct,
+  getProductById,
+  getAllProducts,
+};
