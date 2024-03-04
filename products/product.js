@@ -31,7 +31,7 @@ router.put(
   async (req, res) => {
     try {
       let product = await Product.findByPk(req.params.id);
-      product.set({ password: req.body.password, ...req.body });
+      product.set({ ...req.body });
       product.save();
       res.status(200).json(product);
     } catch (err) {
