@@ -2,6 +2,7 @@ const Cart = require("./models/Cart");
 const router = require("express").Router();
 const { Op } = require("sequelize");
 const ProductController = require("../products/controller/ProductController");
+const CartController = require("./controller/CartController");
 
 const {
   authenticateTokenAndAdmin,
@@ -11,35 +12,17 @@ const {
 const User = require("../users/models/User");
 
 // add product to cart
-router.post("/c/addToCart", authenticateTokenAndAdmin, async (req, res) => {
-  const cart = await Cart.create(req.body);
-  if (!cart) {
-    // using status 500 for this case
-    return res.status(500).send("Cannot add product to cart");
-  }
-
-  res.send(cart);
-});
+router.post(
+  "/c/addToCart",
+  authenticateTokenAndAdmin,
+  CartController.addToCart,
+);
 
 // Update cart product quantity
 router.put(
   "/userId=:userId/productId=:productId",
   [authenticateTokenAndAuthorization],
-  async (req, res) => {
-    try {
-      let cart = await Cart.findOne({
-        where: {
-          userId: parseInt(req.params.userId),
-          productId: parseInt(req.params.productId),
-        },
-      });
-      cart.set({ quantity: req.body.quantity });
-      cart.save();
-      res.status(200).json(cart);
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  },
+  CartController.updateCart,
 );
 
 // Get products in cart by user id
@@ -69,19 +52,7 @@ router.get(
 router.delete(
   "/userId=:userId/productId=:productId",
   authenticateTokenAndAuthorization,
-  async (req, res) => {
-    try {
-      await Cart.destroy({
-        where: {
-          userId: parseInt(req.params.userId),
-          productId: parseInt(req.params.productId),
-        },
-      });
-      res.status(200).json("Product is deleted from cart");
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  },
+  CartController.deleteProductFromCart,
 );
 
 module.exports = router;

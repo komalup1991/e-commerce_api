@@ -12,6 +12,7 @@ const findAllProducts = async (productIds) => {
 };
 
 const addProduct = async (req, res) => {
+  console.log("addProduct");
   req.body.image = getImagePath(req);
   const product = await Product.create(req.body);
   if (!product) {
@@ -29,11 +30,12 @@ const updateProduct = async (req, res) => {
     product.save();
     res.status(200).json(product);
   } catch (err) {
-    res.status(500).json(product);
+    res.status(500).json(err);
   }
 };
 
 const deleteProduct = async (req, res) => {
+  console.log("deleteProduct");
   try {
     await Product.destroy({ where: { id: req.params.id } });
     res.status(200).json("Product is deleted");
@@ -48,12 +50,16 @@ const getAllProducts = async (req, res) => {
 };
 
 const getProductById = async (req, res) => {
-  let product = await Product.findByPk(req.params.id);
+  let product = await getProduct(req.params.id);
   if (!product) {
     return res.status(404).send("Product not found");
   } else {
     res.send(product);
   }
+};
+
+const getProduct = async (productId) => {
+  return Product.findByPk(productId);
 };
 
 const searchProduct = async (req, res) => {
@@ -84,6 +90,23 @@ const filterProduct = async (req, res) => {
   } else {
     res.send(product);
   }
+};
+
+const checkAndReduceProductQuantity = async (productId, quantity) => {
+  let product = await getProduct(productId);
+  if (product.stockQuantity < quantity) {
+    return false;
+  }
+  product.set({ stockQuantity: product.stockQuantity - quantity });
+  await product.save();
+  return true;
+};
+
+const increaseProductQuantity = async (productId, quantity) => {
+  console.log(productId, quantity);
+  let product = await getProduct(productId);
+  product.set({ stockQuantity: product.stockQuantity + quantity });
+  await product.save();
 };
 
 const getImagePath = (req) => {
@@ -124,4 +147,6 @@ module.exports = {
   filterProduct,
   getProductById,
   getAllProducts,
+  checkAndReduceProductQuantity,
+  increaseProductQuantity,
 };
