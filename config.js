@@ -4,4 +4,7 @@ module.exports = {
     USER: "user",
     ADMIN: "admin",
   },
+  productPriceUnit: {
+    DOLLAR: "dollar",
+  },
 };
