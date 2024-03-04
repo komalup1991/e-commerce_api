@@ -1,5 +1,6 @@
 const Product = require("./models/Product");
 const router = require("express").Router();
+const { Op } = require("sequelize");
 
 const {
   authenticateTokenAndAdmin,
@@ -62,6 +63,38 @@ router.delete("/:id", authenticateTokenAndAuthorization, async (req, res) => {
     res.status(200).json("Product is deleted");
   } catch (err) {
     res.status(500).json(err);
+  }
+});
+
+// search with keyword
+router.get("/p/search", async (req, res) => {
+  let product = await Product.findAll({
+    where: {
+      name: { [Op.like]: `%${req.query.key}%` },
+    },
+  });
+  if (!product || product.length === 0) {
+    return res.status(404).send("Products not found");
+  } else {
+    res.send(product);
+  }
+});
+
+// filter by category and price
+router.get("/p/filter", async (req, res) => {
+  let product = await Product.findAll({
+    where: {
+      category: req.query.category ? req.query.category : { [Op.ne]: null },
+      price:
+        req.query.from && req.query.to
+          ? { [Op.between]: [`${req.query.from}`, `${req.query.to}`] }
+          : { [Op.ne]: null },
+    },
+  });
+  if (!product || product.length === 0) {
+    return res.status(404).send("Products not found");
+  } else {
+    res.send(product);
   }
 });
 

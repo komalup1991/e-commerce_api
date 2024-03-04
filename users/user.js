@@ -54,7 +54,6 @@ router.get("/:id", authenticateTokenAndAuthorization, async (req, res) => {
 // Delete user
 router.delete("/:id", authenticateTokenAndAuthorization, async (req, res) => {
   try {
-    console.log("DELETE = " + req.params.id);
     await User.destroy({ where: { id: req.params.id } });
     res.status(200).json("User is deleted");
   } catch (err) {

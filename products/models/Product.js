@@ -37,6 +37,10 @@ Product.init(
       allowNull: false,
       defaultValue: 0,
     },
+    category: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     sequelize,

@@ -19,6 +19,9 @@ module.exports = {
     stockQuantity: {
       type: "number",
     },
+    category: {
+      type: "string",
+    },
   },
   additionalProperties: false,
 };
