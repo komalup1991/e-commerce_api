@@ -1,4 +1,6 @@
 const Product = require("../models/Product");
+const multer = require("multer");
+const path = require("path");
 
 const findAllProducts = async (productIds) => {
   let allProductsWithGivenIds = await Product.findAll({
@@ -9,4 +11,43 @@ const findAllProducts = async (productIds) => {
   return allProductsWithGivenIds;
 };
 
-module.exports = { findAllProducts };
+const addProduct = async (req, res) => {
+  req.body.image = getImagePath(req);
+  const product = await Product.create(req.body);
+  if (!product) {
+    // using status 500 for this case
+    return res.status(500).send("Product not created");
+  }
+
+  res.send(product);
+};
+
+const getImagePath = (req) => {
+  return "Images/" + req.file.filename;
+};
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "Images/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, "product-" + Date.now() + path.extname(file.originalname));
+  },
+});
+
+const uploadProductImage = multer({
+  storage: storage,
+  limits: { fileSize: "1000000" },
+  fileFilter: (req, file, cb) => {
+    const fileTypes = /jpeg|jpg|png/;
+    const mimeType = fileTypes.test(file.mimetype);
+    const extname = fileTypes.test(path.extname(file.originalname));
+
+    if (mimeType && extname) {
+      return cb(null, true);
+    }
+    cb("Incorrect file format");
+  },
+}).single("image");
+
+module.exports = { findAllProducts, addProduct, uploadProductImage };

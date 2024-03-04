@@ -1,4 +1,5 @@
 const Product = require("./models/Product");
+const ProductController = require("./controller/ProductController");
 const router = require("express").Router();
 const { Op } = require("sequelize");
 
@@ -11,15 +12,12 @@ const validateSchema = require("../middlewares/validateSchema");
 const updateProductSchema = require("../products/schemas/updateProductSchema");
 
 // Create new product
-router.post("/addProduct", authenticateTokenAndAdmin, async (req, res) => {
-  const product = await Product.create(req.body);
-  if (!product) {
-    // using status 500 for this case
-    return res.status(500).send("Product not created");
-  }
-
-  res.send(product);
-});
+router.post(
+  "/addProduct",
+  authenticateTokenAndAdmin,
+  ProductController.uploadProductImage,
+  ProductController.addProduct,
+);
 
 // Update product
 router.put(

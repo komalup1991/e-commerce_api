@@ -14,6 +14,7 @@ app.use("/api/users", userRoute);
 app.use("/api/auth", userAuth);
 app.use("/api/products", productRoute);
 app.use("/api/cart", cartRoute);
+app.use("/Images", express.static("./Images"));
 
 sequelize.sync().then(() => {
   console.log("Database Initialized!!");
