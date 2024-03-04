@@ -5,26 +5,35 @@ const {
   authenticateTokenAndAdmin,
   authenticateTokenAndAuthorization,
 } = require("../middlewares/verifyToken");
-const User = require("../models/User");
+const User = require("./models/User");
+const validateSchema = require("../middlewares/validateSchema");
+const updateUserSchema = require("../users/schemas/updateUserSchema");
 
 // Update user
-router.put("/:id", authenticateTokenAndAuthorization, async (req, res) => {
-  if (req.body.password) {
-    req.body.password = CryptoJS.AES.encrypt(
-      req.body.password,
-      process.env.SECRET_KEY,
-    ).toString();
-  }
+router.put(
+  "/:id",
+  [
+    authenticateTokenAndAuthorization,
+    validateSchema.validate(updateUserSchema),
+  ],
+  async (req, res) => {
+    if (req.body.password) {
+      req.body.password = CryptoJS.AES.encrypt(
+        req.body.password,
+        process.env.SECRET_KEY,
+      ).toString();
+    }
 
-  try {
-    let user = await User.findByPk(req.params.id);
-    user.set({ password: req.body.password, ...req.body });
-    user.save();
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
+    try {
+      let user = await User.findByPk(req.params.id);
+      user.set({ password: req.body.password, ...req.body });
+      user.save();
+      res.status(200).json(user);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+);
 
 // Get all users
 router.get("/all", authenticateTokenAndAdmin, async (req, res) => {

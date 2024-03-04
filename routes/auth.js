@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const User = require("../models/User");
+const User = require("../users/models/User");
 const CryptoJS = require("crypto-js");
 const { roles, jwtExpirationInSeconds } = require("../config");
 const jwt = require("jsonwebtoken");

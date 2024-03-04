@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
-const userRoute = require("./routes/user");
+const userRoute = require("./users/user");
 const sequelize = require("./db/database");
 const userAuth = require("./routes/auth");
 
