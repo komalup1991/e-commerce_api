@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const userRoute = require("./users/user");
 const productRoute = require("./products/product");
 const cartRoute = require("./cart/cart");
+const orderRoute = require("./orders/order");
 const sequelize = require("./db/database");
 const userAuth = require("./routes/auth");
 
@@ -14,6 +15,7 @@ app.use("/api/users", userRoute);
 app.use("/api/auth", userAuth);
 app.use("/api/products", productRoute);
 app.use("/api/cart", cartRoute);
+app.use("/api/order", orderRoute);
 app.use("/Images", express.static("./Images"));
 
 sequelize.sync().then(() => {

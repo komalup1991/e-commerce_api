@@ -58,15 +58,17 @@ const getDetails = async (userId) => {
 
   let productWithPriceTotal = [];
   let total = 0;
+  let totalQuantity = 0;
 
   products.forEach((product) => {
     let itemQuantity = productInfo.get(product.id);
     let itemTotalPrice = product.price * itemQuantity;
     productWithPriceTotal.push({ product, itemQuantity, itemTotalPrice });
     total += itemTotalPrice;
+    totalQuantity += itemQuantity;
   });
 
-  return { productWithPriceTotal, total };
+  return { productWithPriceTotal, total, totalQuantity };
 };
 
 const updateCart = async (req, res) => {
@@ -147,9 +149,22 @@ const findCartForUserAndProductIds = async (userId, productId) => {
   });
 };
 
+const clearCartForUser = async (userId) => {
+  let carts = await Cart.findAll({
+    where: { userId: parseInt(userId) },
+  });
+
+  carts.forEach(async (cart) => {
+    cart.destroy();
+    // console.log("cart destroyed = " + cart.id);
+  });
+};
+
 module.exports = {
   addToCart,
   updateCart,
   deleteProductFromCart,
   getCartDetailsForUser,
+  getDetails,
+  clearCartForUser,
 };
