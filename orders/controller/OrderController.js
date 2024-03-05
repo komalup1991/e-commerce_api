@@ -1,6 +1,7 @@
 const Order = require("../models/Order");
 const CartController = require("../../cart/controller/CartController");
 const OrderDetailsController = require("./OrderDetailsController");
+const PaymentController = require("../../payment/controller/PaymentController");
 
 const placeOrder = async (req, res) => {
   let userId = req.params.userId;
@@ -20,7 +21,14 @@ const placeOrder = async (req, res) => {
 
   OrderDetailsController.placeOrder(req, res);
   CartController.clearCartForUser(userId);
-  return res.status(200).send(order);
+
+  PaymentController.processPayment(req, cartItemDetails.total, {
+    setPayment: (payment) => {
+      order.status = payment.paymentStatus;
+      order.save();
+      return res.status(200).send({ order, payment });
+    },
+  });
 };
 
 module.exports = { placeOrder };

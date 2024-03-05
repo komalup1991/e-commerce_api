@@ -6,15 +6,20 @@ const placeOrder = async (req, res) => {
   let userId = req.params.userId;
   let cartItemDetails = await CartController.getDetails(userId);
 
-  cartItemDetails.productWithPriceTotal.forEach((element) => {
-    const item = OrderDetail.create({
+  for (
+    let index = 0;
+    index < cartItemDetails.productWithPriceTotal.length;
+    index++
+  ) {
+    element = cartItemDetails.productWithPriceTotal[index];
+    await OrderDetail.create({
       orderId: req.body.orderId,
       productId: element.product.id,
       itemQuantity: element.itemQuantity,
       itemTotalPrice: element.itemTotalPrice,
       price: element.product.price,
     });
-  });
+  }
 };
 
 const getOrdersByUserId = async (req, res) => {

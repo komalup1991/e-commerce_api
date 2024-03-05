@@ -41,6 +41,10 @@ Product.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    rating: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
   },
   {
     sequelize,
