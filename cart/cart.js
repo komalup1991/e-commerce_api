@@ -38,12 +38,26 @@ router.get(
         where: { userId: parseInt(req.params.userId) },
       });
 
-      let productId = [];
+      const productInfo = new Map();
       carts.forEach((cart) => {
-        productId.push(cart.productId);
+        productInfo.set(cart.productId, cart.quantity);
       });
-      let products = await ProductController.findAllProducts(productId);
-      res.send(products);
+
+      let products = await ProductController.findAllProducts(
+        Array.from(productInfo.keys()),
+      );
+
+      let productWithPriceTotal = [];
+      let total = 0;
+
+      products.forEach((product) => {
+        let itemQuantity = productInfo.get(product.id);
+        let itemTotalPrice = product.price * itemQuantity;
+        productWithPriceTotal.push({ product, itemQuantity, itemTotalPrice });
+        total += itemTotalPrice;
+      });
+
+      res.send({ productWithPriceTotal, total });
     }
   },
 );
