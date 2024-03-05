@@ -1,4 +1,6 @@
 const Cart = require("../models/Cart");
+const User = require("../../users/models/User");
+
 const ProductController = require("../../products/controller/ProductController");
 
 const addToCart = async (req, res) => {
@@ -29,6 +31,42 @@ const addToCart = async (req, res) => {
 
     res.send(cart);
   }
+};
+
+const getCartDetailsForUser = async (req, res) => {
+  res.send(await getDetails(req.params.userId));
+};
+
+const getDetails = async (userId) => {
+  let user = await User.findByPk(userId);
+  if (!user) {
+    return res.status(404).send("Invalid userId");
+  }
+
+  let carts = await Cart.findAll({
+    where: { userId: parseInt(userId) },
+  });
+
+  const productInfo = new Map();
+  carts.forEach((cart) => {
+    productInfo.set(cart.productId, cart.quantity);
+  });
+
+  let products = await ProductController.findAllProducts(
+    Array.from(productInfo.keys()),
+  );
+
+  let productWithPriceTotal = [];
+  let total = 0;
+
+  products.forEach((product) => {
+    let itemQuantity = productInfo.get(product.id);
+    let itemTotalPrice = product.price * itemQuantity;
+    productWithPriceTotal.push({ product, itemQuantity, itemTotalPrice });
+    total += itemTotalPrice;
+  });
+
+  return { productWithPriceTotal, total };
 };
 
 const updateCart = async (req, res) => {
@@ -88,8 +126,6 @@ const deleteProductFromCart = async (req, res) => {
       req.params.productId,
     );
 
-    console.log(cart);
-
     await ProductController.increaseProductQuantity(
       req.params.productId,
       cart.quantity,
@@ -111,4 +147,9 @@ const findCartForUserAndProductIds = async (userId, productId) => {
   });
 };
 
-module.exports = { addToCart, updateCart, deleteProductFromCart };
+module.exports = {
+  addToCart,
+  updateCart,
+  deleteProductFromCart,
+  getCartDetailsForUser,
+};

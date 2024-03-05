@@ -1,7 +1,5 @@
 const Cart = require("./models/Cart");
 const router = require("express").Router();
-const { Op } = require("sequelize");
-const ProductController = require("../products/controller/ProductController");
 const CartController = require("./controller/CartController");
 
 const {
@@ -29,37 +27,7 @@ router.put(
 router.get(
   "/userId=:userId",
   authenticateTokenAndAuthorization,
-  async (req, res) => {
-    let user = await User.findByPk(req.params.userId);
-    if (!user) {
-      return res.status(404).send("Invalid userId");
-    } else {
-      let carts = await Cart.findAll({
-        where: { userId: parseInt(req.params.userId) },
-      });
-
-      const productInfo = new Map();
-      carts.forEach((cart) => {
-        productInfo.set(cart.productId, cart.quantity);
-      });
-
-      let products = await ProductController.findAllProducts(
-        Array.from(productInfo.keys()),
-      );
-
-      let productWithPriceTotal = [];
-      let total = 0;
-
-      products.forEach((product) => {
-        let itemQuantity = productInfo.get(product.id);
-        let itemTotalPrice = product.price * itemQuantity;
-        productWithPriceTotal.push({ product, itemQuantity, itemTotalPrice });
-        total += itemTotalPrice;
-      });
-
-      res.send({ productWithPriceTotal, total });
-    }
-  },
+  CartController.getCartDetailsForUser,
 );
 
 // Delete cart item
