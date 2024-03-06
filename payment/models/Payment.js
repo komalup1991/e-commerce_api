@@ -1,6 +1,8 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../../db/database");
 const { paymentStatus, paymentMethod } = require("../../config");
+const Order = require("../../orders/models/Order");
+const User = require("../../users/models/User");
 
 class Payment extends Model {}
 
@@ -14,10 +16,18 @@ Payment.init(
     orderId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: Order,
+        key: "id",
+      },
     },
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: User,
+        key: "id",
+      },
     },
     paymentAmount: {
       type: DataTypes.FLOAT,
@@ -56,4 +66,6 @@ Payment.init(
   },
 );
 
+Payment.belongsTo(Order, { foreignKey: "orderId" });
+Payment.belongsTo(User, { foreignKey: "userId" });
 module.exports = Payment;

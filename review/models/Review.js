@@ -1,5 +1,7 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../../db/database");
+const User = require("../../users/models/User");
+const Product = require("../../products/models/Product");
 
 class Review extends Model {}
 
@@ -18,6 +20,10 @@ Review.init(
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: User,
+        key: "id",
+      },
     },
     rating: {
       type: DataTypes.INTEGER,
@@ -31,6 +37,10 @@ Review.init(
     productId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: Product,
+        key: "id",
+      },
     },
   },
   {
@@ -39,4 +49,6 @@ Review.init(
   },
 );
 
+Review.belongsTo(User, { foreignKey: "userId" });
+Review.belongsTo(Product, { foreignKey: "productId" });
 module.exports = Review;

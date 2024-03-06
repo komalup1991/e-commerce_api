@@ -1,5 +1,6 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../../db/database");
+const User = require("../../users/models/User");
 
 class Order extends Model {}
 
@@ -13,6 +14,10 @@ Order.init(
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: User,
+        key: "id",
+      },
     },
     status: {
       type: DataTypes.STRING,
@@ -37,5 +42,5 @@ Order.init(
     modelName: "order",
   },
 );
-
+Order.belongsTo(User, { foreignKey: "userId" });
 module.exports = Order;

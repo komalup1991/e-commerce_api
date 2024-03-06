@@ -1,6 +1,8 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../../db/database");
 const { productPriceUnit } = require("../../config");
+const Product = require("../../products/models/Product");
+const Order = require("./Order");
 
 class OrderDetails extends Model {}
 
@@ -14,10 +16,18 @@ OrderDetails.init(
     orderId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: Order,
+        key: "id",
+      },
     },
     productId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: Product,
+        key: "id",
+      },
     },
     priceUnit: {
       type: DataTypes.STRING,
@@ -49,4 +59,6 @@ OrderDetails.init(
   },
 );
 
+OrderDetails.belongsTo(Order, { foreignKey: "orderId" });
+OrderDetails.belongsTo(Product, { foreignKey: "productId" });
 module.exports = OrderDetails;
