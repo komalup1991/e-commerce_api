@@ -2,28 +2,40 @@ const Cart = require("../models/Cart");
 const User = require("../../users/models/User");
 
 const ProductController = require("../../products/controller/ProductController");
+const AnalyticsController = require("../../analytics/controller/AnalyticsController");
 
 const addToCart = async (req, res) => {
+  const userId = req.params.userId;
+  const productId = req.params.productId;
+
+  AnalyticsController.trackEvent({
+    userId: userId,
+    productId: productId,
+    eventName: "addToCart",
+  });
+
   let isQuantityAvailable =
     await ProductController.checkAndReduceProductQuantity(
-      req.body.productId,
+      productId,
       req.body.quantity,
     );
   if (!isQuantityAvailable) {
     return res.status(400).send("Cannot add to cart. Quantity not available.");
   }
 
-  let cart = await findCartForUserAndProductIds(
-    req.body.userId,
-    req.body.productId,
-  );
+  let cart = await findCartForUserAndProductIds(userId, productId);
   if (cart) {
     // if cart already exists, update the quantity of the product in it.
     cart.set({ quantity: cart.quantity + req.body.quantity });
     cart.save();
+
     return res.status(200).json(cart);
   } else {
-    cart = await Cart.create(req.body);
+    cart = await Cart.create({
+      userId: userId,
+      productId: productId,
+      ...req.body,
+    });
     if (!cart) {
       // using status 500 for this case
       return res.status(500).send("Cannot add product to cart");
@@ -128,6 +140,16 @@ const deleteProductFromCart = async (req, res) => {
       req.params.productId,
     );
 
+    if (!cart) {
+      return res.status(404).send("Product not found in cart");
+    }
+
+    AnalyticsController.trackEvent({
+      userId: req.params.userId,
+      productId: req.params.productId,
+      eventName: "deleteProductFromCart",
+    });
+
     await ProductController.increaseProductQuantity(
       req.params.productId,
       cart.quantity,
@@ -141,6 +163,7 @@ const deleteProductFromCart = async (req, res) => {
 };
 
 const findCartForUserAndProductIds = async (userId, productId) => {
+  console.log("findCartForUserAndProductIds", userId, productId);
   return await Cart.findOne({
     where: {
       userId: parseInt(userId),
@@ -156,7 +179,6 @@ const clearCartForUser = async (userId) => {
 
   carts.forEach(async (cart) => {
     cart.destroy();
-    // console.log("cart destroyed = " + cart.id);
   });
 };
 

@@ -1,6 +1,7 @@
 const OrderDetail = require("../models/OrderDetail");
 const CartController = require("../../cart/controller/CartController");
 const Order = require("../models/Order");
+const AnalyticsController = require("../../analytics/controller/AnalyticsController");
 
 const placeOrder = async (req, res) => {
   let userId = req.params.userId;
@@ -12,12 +13,20 @@ const placeOrder = async (req, res) => {
     index++
   ) {
     element = cartItemDetails.productWithPriceTotal[index];
+    console.log(element.product.category);
     await OrderDetail.create({
       orderId: req.body.orderId,
       productId: element.product.id,
       itemQuantity: element.itemQuantity,
       itemTotalPrice: element.itemTotalPrice,
       price: element.product.price,
+      category: element.product.category,
+    });
+
+    AnalyticsController.trackEvent({
+      userId: userId,
+      productId: element.product.id,
+      eventName: "placeOrder",
     });
   }
 };

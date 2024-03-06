@@ -113,7 +113,6 @@ const checkAndReduceProductQuantity = async (productId, quantity) => {
 };
 
 const increaseProductQuantity = async (productId, quantity) => {
-  console.log(productId, quantity);
   let product = await getProduct(productId);
   product.set({ stockQuantity: product.stockQuantity + quantity });
   await product.save();

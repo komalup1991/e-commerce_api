@@ -38,6 +38,10 @@ OrderDetails.init(
       allowNull: false,
       defaultValue: 0,
     },
+    category: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
   {
     sequelize,

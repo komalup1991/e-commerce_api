@@ -20,7 +20,7 @@ const placeOrder = async (req, res) => {
   req.body.orderId = order.id;
 
   OrderDetailsController.placeOrder(req, res);
-  CartController.clearCartForUser(userId);
+  // CartController.clearCartForUser(userId);
 
   PaymentController.processPayment(req, cartItemDetails.total, {
     setPayment: (payment) => {

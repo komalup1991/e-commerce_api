@@ -20,7 +20,20 @@ const authenticateToken = (req, res, next) => {
 
 const authenticateTokenAndAuthorization = (req, res, next) => {
   authenticateToken(req, res, () => {
-    if (req.user.id.toString() === req.params.id || req.user.role === "admin") {
+    if (
+      req.user.id.toString() === req.params.userId ||
+      req.user.role === "admin"
+    ) {
+      next();
+    } else {
+      res.status(403).json("You are not allowed to do that!");
+    }
+  });
+};
+
+const authenticateTokenAndId = (req, res, next) => {
+  authenticateToken(req, res, () => {
+    if (req.user.id.toString() === req.params.userId) {
       next();
     } else {
       res.status(403).json("You are not allowed to do that!");
@@ -42,4 +55,5 @@ module.exports = {
   authenticateToken,
   authenticateTokenAndAuthorization,
   authenticateTokenAndAdmin,
+  authenticateTokenAndId,
 };
