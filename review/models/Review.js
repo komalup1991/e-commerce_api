@@ -13,6 +13,7 @@ Review.init(
     description: {
       type: DataTypes.STRING,
       allowNull: false,
+      defaultValue: "",
     },
     userId: {
       type: DataTypes.INTEGER,

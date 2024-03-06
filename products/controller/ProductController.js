@@ -1,6 +1,7 @@
 const Product = require("../models/Product");
 const multer = require("multer");
 const path = require("path");
+const ReviewController = require("../../review/controller/ReviewController");
 
 const findAllProducts = async (productIds) => {
   let allProductsWithGivenIds = await Product.findAll({
@@ -12,7 +13,6 @@ const findAllProducts = async (productIds) => {
 };
 
 const addProduct = async (req, res) => {
-  console.log("addProduct");
   req.body.image = getImagePath(req);
   const product = await Product.create(req.body);
   if (!product) {
@@ -20,7 +20,8 @@ const addProduct = async (req, res) => {
     return res.status(500).send("Product not created");
   }
 
-  res.send(product);
+  const rating = 0;
+  res.send({ rating, ...product.dataValues });
 };
 
 const updateProduct = async (req, res) => {
@@ -35,7 +36,6 @@ const updateProduct = async (req, res) => {
 };
 
 const deleteProduct = async (req, res) => {
-  console.log("deleteProduct");
   try {
     await Product.destroy({ where: { id: req.params.id } });
     res.status(200).json("Product is deleted");
@@ -45,8 +45,15 @@ const deleteProduct = async (req, res) => {
 };
 
 const getAllProducts = async (req, res) => {
-  const product = await Product.findAll();
-  res.send(product);
+  const products = await Product.findAll();
+  const result = [];
+  for (let i = 0; i < products.length; i++) {
+    const rating = await ReviewController.averageRatingForProduct(
+      products[i].id,
+    );
+    result.push({ rating, ...products[i].dataValues });
+  }
+  res.send(result);
 };
 
 const getProductById = async (req, res) => {
@@ -54,7 +61,10 @@ const getProductById = async (req, res) => {
   if (!product) {
     return res.status(404).send("Product not found");
   } else {
-    res.send(product);
+    const rating = await ReviewController.averageRatingForProduct(
+      req.params.id,
+    );
+    res.send({ rating, ...product.dataValues });
   }
 };
 

@@ -22,6 +22,9 @@ module.exports = {
     category: {
       type: "string",
     },
+    rating: {
+      type: "number",
+    },
   },
   additionalProperties: false,
 };
