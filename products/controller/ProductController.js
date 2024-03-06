@@ -1,6 +1,7 @@
 const Product = require("../models/Product");
 const multer = require("multer");
 const path = require("path");
+const { Op } = require("sequelize");
 const ReviewController = require("../../review/controller/ReviewController");
 
 const findAllProducts = async (productIds) => {
