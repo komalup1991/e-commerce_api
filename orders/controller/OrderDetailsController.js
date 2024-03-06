@@ -13,7 +13,6 @@ const placeOrder = async (req, res) => {
     index++
   ) {
     element = cartItemDetails.productWithPriceTotal[index];
-    console.log(element.product.category);
     await OrderDetail.create({
       orderId: req.body.orderId,
       productId: element.product.id,

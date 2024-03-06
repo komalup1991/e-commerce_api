@@ -163,7 +163,6 @@ const deleteProductFromCart = async (req, res) => {
 };
 
 const findCartForUserAndProductIds = async (userId, productId) => {
-  console.log("findCartForUserAndProductIds", userId, productId);
   return await Cart.findOne({
     where: {
       userId: parseInt(userId),

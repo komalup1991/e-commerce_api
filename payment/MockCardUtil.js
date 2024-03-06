@@ -8,8 +8,6 @@ const VALID_CARD = {
 
 // Emulates card correctness
 const validateCard = (card) => {
-  console.log(JSON.stringify(card));
-  console.log(JSON.stringify(VALID_CARD));
   return JSON.stringify(card) === JSON.stringify(VALID_CARD);
 };
 
