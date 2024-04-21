@@ -41,6 +41,14 @@ Product.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    size: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    color: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     sequelize,

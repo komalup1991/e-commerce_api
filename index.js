@@ -9,24 +9,32 @@ const sequelize = require("./db/database");
 const userAuth = require("./routes/auth");
 const review = require("./review/review");
 const analytics = require("./analytics/analytics");
+const stripeRoute = require("./payment/stripe");
+var cors = require("cors");
 
 dotenv.config();
+app.use(
+  cors({
+    credentials: true,
+    origin: process.env.FRONTEND_URL,
+  }),
+);
 
+// app.use(express.static("public"));
 app.use(express.json());
 app.use("/api/users", userRoute);
 app.use("/api/auth", userAuth);
 app.use("/api/products", productRoute);
 app.use("/api/cart", cartRoute);
-app.use("/api/order", orderRoute);
+app.use("/api/orders", orderRoute);
 app.use("/api/review", review);
 app.use("/api/analytics", analytics);
-
-app.use("/Images", express.static("./Images"));
+app.use("/api/checkout", stripeRoute);
 
 sequelize.sync().then(() => {
   console.log("Database Initialized!!");
 });
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log("Server is running on port 3000");
+app.listen(process.env.PORT || 4000, () => {
+  console.log("Server is running on port 4000");
 });

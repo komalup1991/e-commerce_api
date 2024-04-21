@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const CryptoJS = require("crypto-js");
-
+const { Op } = require("sequelize");
 const {
   authenticateTokenAndAdmin,
   authenticateTokenAndAuthorization,
@@ -56,6 +56,35 @@ router.delete("/:id", authenticateTokenAndAuthorization, async (req, res) => {
   try {
     await User.destroy({ where: { id: req.params.id } });
     res.status(200).json("User is deleted");
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+router.get("/stats", authenticateTokenAndAdmin, async (req, res) => {
+  const today = new Date();
+  const lastYear = new Date(today.setFullYear(today.getFullYear() - 1));
+
+  try {
+    const data = await User.findAll({
+      where: {
+        createdAt: {
+          [Op.gte]: lastYear,
+        },
+      },
+      attributes: [
+        [Sequelize.fn("strftime", "%m", Sequelize.col("createdAt")), "month"],
+        [Sequelize.fn("COUNT", Sequelize.col("id")), "total"],
+      ],
+      group: "month",
+      raw: true,
+    });
+    res.status(200).json(
+      data.map((item) => ({
+        month: item.month,
+        total: item.total,
+      })),
+    );
   } catch (err) {
     res.status(500).json(err);
   }

@@ -43,6 +43,7 @@ const authenticateTokenAndId = (req, res, next) => {
 
 const authenticateTokenAndAdmin = (req, res, next) => {
   authenticateToken(req, res, () => {
+    console.log(req.headers.token);
     if (req.user.role === "admin") {
       next();
     } else {

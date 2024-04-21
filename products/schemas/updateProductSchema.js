@@ -25,6 +25,12 @@ module.exports = {
     rating: {
       type: "number",
     },
+    size: {
+      type: "string",
+    },
+    color: {
+      type: "string",
+    },
   },
   additionalProperties: false,
 };

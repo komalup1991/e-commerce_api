@@ -15,7 +15,7 @@ const updateProductSchema = require("../products/schemas/updateProductSchema");
 router.post(
   "/addProduct",
   authenticateTokenAndAdmin,
-  ProductController.uploadProductImage,
+  // ProductController.uploadProductImage,
   ProductController.addProduct,
 );
 
@@ -29,13 +29,17 @@ router.put(
   ProductController.updateProduct,
 );
 
-// Get all products
-router.get("/all", authenticateTokenAndAdmin, ProductController.getAllProducts);
-
-// Get product by id
+//Get product by Id
 router.get(
-  "/:id",
-  authenticateTokenAndAuthorization,
+  "/find/:id",
+  // authenticateTokenAndAdmin,
+  ProductController.findProductById,
+);
+
+// Get all products
+router.get(
+  "/",
+  // authenticateTokenAndAuthorization,
   ProductController.getProductById,
 );
 

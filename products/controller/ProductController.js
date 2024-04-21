@@ -14,16 +14,22 @@ const findAllProducts = async (productIds) => {
 };
 
 const addProduct = async (req, res) => {
-  req.body.image = getImagePath(req);
-  const product = await Product.create(req.body);
-  if (!product) {
-    // using status 500 for this case
-    return res.status(500).send("Product not created");
+  const { id, ...productData } = req.body; // Destructure to exclude 'id'
+  try {
+    const product = await Product.create(productData); // Create product with the remaining data
+    res.status(201).send(product);
+  } catch (error) {
+    res.status(400).send(error);
   }
-
-  const rating = 0;
-  res.send({ rating, ...product.dataValues });
 };
+
+//const product = await Product.create(req.body);
+// if (!product) {
+//   return res.status(500).send("Product not created");
+// }
+
+// const rating = 0;
+// res.send({ rating, ...product.dataValues });
 
 const updateProduct = async (req, res) => {
   try {
@@ -45,27 +51,58 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-const getAllProducts = async (req, res) => {
-  const products = await Product.findAll();
-  const result = [];
-  for (let i = 0; i < products.length; i++) {
-    const rating = await ReviewController.averageRatingForProduct(
-      products[i].id,
-    );
-    result.push({ rating, ...products[i].dataValues });
+// const getAllProducts = async (req, res) => {
+//   const products = await Product.findAll();
+//   const result = [];
+//   for (let i = 0; i < products.length; i++) {
+//     const rating = await ReviewController.averageRatingForProduct(
+//       products[i].id,
+//     );
+//     result.push({ rating, ...products[i].dataValues });
+//   }
+//   res.send(result);
+// };
+
+const findProductById = async (req, res) => {
+  try {
+    const product = await Product.findByPk(req.params.id);
+    res.status(200).json(product);
+  } catch (err) {
+    res.status(500).json(err);
   }
-  res.send(result);
 };
 
 const getProductById = async (req, res) => {
-  let product = await getProduct(req.params.id);
-  if (!product) {
-    return res.status(404).send("Product not found");
-  } else {
-    const rating = await ReviewController.averageRatingForProduct(
-      req.params.id,
-    );
-    res.send({ rating, ...product.dataValues });
+  try {
+    const qNew = req.query.new;
+    const qCategory = req.query.category;
+    if (req.params.id) {
+      // If ID is provided, fetch single product
+      const product = await Product.findByPk(req.params.id);
+      if (!product) {
+        return res.status(404).send("Product not found");
+      }
+      const rating = await ReviewController.averageRatingForProduct(
+        req.params.id,
+      );
+      res.send({ rating, ...product.toJSON() });
+    } else {
+      // If no ID is provided, fetch multiple products based on query params
+      let products;
+      if (qNew) {
+        products = await Product.findAll({
+          order: [["createdAt", "DESC"]],
+          limit: 1,
+        });
+      } else if (qCategory) {
+        products = await Product.findAll({ where: { category: qCategory } });
+      } else {
+        products = await Product.findAll();
+      }
+      res.status(200).json(products);
+    }
+  } catch (err) {
+    res.status(500).json(err);
   }
 };
 
@@ -156,7 +193,8 @@ module.exports = {
   searchProduct,
   filterProduct,
   getProductById,
-  getAllProducts,
+  findProductById,
+  // getAllProducts,
   checkAndReduceProductQuantity,
   increaseProductQuantity,
 };
