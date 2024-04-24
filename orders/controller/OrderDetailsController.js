@@ -45,7 +45,7 @@ const getOrdersByUserId = async (req, res) => {
 };
 const getIncome = async (req, res) => {
   const productId = req.query.pid;
-  console.log(productId);
+
   const date = new Date();
   const lastMonth = new Date(date.setMonth(date.getMonth() - 1));
   const previousMonth = new Date(new Date().setMonth(lastMonth.getMonth() - 1));
@@ -93,7 +93,6 @@ const getIncome = async (req, res) => {
       })),
     );
   } catch (err) {
-    console.error(err);
     res.status(500).json(err);
   }
 };

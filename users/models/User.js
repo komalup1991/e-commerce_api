@@ -33,6 +33,10 @@ User.init(
       allowNull: false,
       unique: true,
     },
+    profilePic: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     role: {
       type: DataTypes.STRING,
       allowNull: false,

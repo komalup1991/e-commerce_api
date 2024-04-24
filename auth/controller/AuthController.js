@@ -36,17 +36,14 @@ const loginUser = async (req, res) => {
 
     const originalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
     const inputPassword = req.body.password;
-
     if (originalPassword !== inputPassword) {
       return res.status(401).json("Wrong Password");
     }
 
     const accessToken = generateAccessToken(user.username, user.id, user.role);
     res.status(200).json({ user, accessToken });
-    // res.status(200).json(user);
   } catch (err) {
     app.use((err, req, res, next) => {
-      console.error(err.stack);
       res.status(500).send("Something broke!");
     });
   }
@@ -64,7 +61,7 @@ const registerUser = async (req, res) => {
     return res.status(500).send("User not created");
   }
 
-  res.send("User inserted");
+  res.send(user);
 };
 
 module.exports = { loginUser, registerUser };

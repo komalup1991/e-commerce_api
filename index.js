@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const dotenv = require("dotenv");
+const dotenv = require("dotenv").config();
 const userRoute = require("./users/user");
 const productRoute = require("./products/product");
 const cartRoute = require("./cart/cart");
@@ -10,13 +10,13 @@ const userAuth = require("./routes/auth");
 const review = require("./review/review");
 const analytics = require("./analytics/analytics");
 const stripeRoute = require("./payment/stripe");
-var cors = require("cors");
+const flickrRoute = require("./flickr/flickr");
+const cors = require("cors");
 
-dotenv.config();
 app.use(
   cors({
-    credentials: true,
-    origin: process.env.FRONTEND_URL,
+    // credentials: true,
+    // origin: process.env.FRONTEND_URL,
   }),
 );
 
@@ -30,9 +30,10 @@ app.use("/api/orders", orderRoute);
 app.use("/api/review", review);
 app.use("/api/analytics", analytics);
 app.use("/api/checkout", stripeRoute);
+app.use("/api/flickr", flickrRoute);
 
 sequelize.sync().then(() => {
-  console.log("Database Initialized!!");
+  console.log("Database and tables created!");
 });
 
 app.listen(process.env.PORT || 4000, () => {
