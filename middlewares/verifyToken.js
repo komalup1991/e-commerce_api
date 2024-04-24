@@ -45,7 +45,21 @@ const authenticateTokenAndId = (req, res, next) => {
 };
 const authenticateTokenAndUserId = (req, res, next) => {
   authenticateToken(req, res, () => {
+    console.log(
+      "(JSON.stringify(req.user.id) === req.params.userId ",
+      JSON.stringify(req.user.id) === req.params.userId,
+    );
     if (JSON.stringify(req.user.id) === req.params.userId) {
+      next();
+    } else {
+      res.status(403).json("You are not allowed to do that!");
+    }
+  });
+};
+
+const authenticateWishlist = (req, res, next) => {
+  authenticateToken(req, res, () => {
+    if (req.user.id === req.body.userId) {
       next();
     } else {
       res.status(403).json("You are not allowed to do that!");
@@ -69,4 +83,5 @@ module.exports = {
   authenticateTokenAndAdmin,
   authenticateTokenAndId,
   authenticateTokenAndUserId,
+  authenticateWishlist,
 };

@@ -19,7 +19,7 @@ router.post(
 // Update cart product quantity
 router.put(
   "/userId=:userId/productId=:productId",
-  authenticateTokenAndId,
+  authenticateTokenAndUserId,
   CartController.updateCart,
 );
 

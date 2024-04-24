@@ -9,7 +9,6 @@ const sequelize = require("./db/database");
 const userAuth = require("./routes/auth");
 const review = require("./review/review");
 const analytics = require("./analytics/analytics");
-const stripeRoute = require("./payment/stripe");
 const flickrRoute = require("./flickr/flickr");
 const cors = require("cors");
 
@@ -29,7 +28,6 @@ app.use("/api/cart", cartRoute);
 app.use("/api/orders", orderRoute);
 app.use("/api/review", review);
 app.use("/api/analytics", analytics);
-app.use("/api/checkout", stripeRoute);
 app.use("/api/flickr", flickrRoute);
 
 sequelize.sync().then(() => {

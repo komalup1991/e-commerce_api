@@ -6,6 +6,7 @@ const {
   authenticateTokenAndId,
   authenticateTokenAndAuthorization,
   authenticateTokenAndUserId,
+  authenticateWishlist,
 } = require("../middlewares/verifyToken");
 const User = require("./models/User");
 const Wishlist = require("./models/Wishlist");
@@ -126,7 +127,7 @@ router.delete("/:id", authenticateTokenAndAuthorization, async (req, res) => {
   }
 });
 
-router.post("/addToWishlist", authenticateTokenAndUserId, async (req, res) => {
+router.post("/addToWishlist", authenticateWishlist, async (req, res) => {
   try {
     const result = await Wishlist.create(req.body);
     res.status(201).send(result);
