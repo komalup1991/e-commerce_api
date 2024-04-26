@@ -105,7 +105,7 @@ router.put(
 );
 
 // Get all users
-router.get("/all", authenticateTokenAndAdmin, async (req, res) => {
+router.get("/all", async (req, res) => {
   const users = await User.findAll();
   res.send(users);
 });
