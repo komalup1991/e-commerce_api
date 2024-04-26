@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const authenticateToken = (req, res, next) => {
+  console.log("authenticateToken", req.headers.token);
   const authHeader = req.headers.token;
 
   if (!authHeader) {
@@ -36,6 +37,11 @@ const authenticateTokenAndAuthorization = (req, res, next) => {
 
 const authenticateTokenAndId = (req, res, next) => {
   authenticateToken(req, res, () => {
+    console.log(
+      "JSON.stringify(req.user.id) === req.params.id",
+      JSON.stringify(req.user.id),
+      req.params.id,
+    );
     if (JSON.stringify(req.user.id) === req.params.id) {
       next();
     } else {

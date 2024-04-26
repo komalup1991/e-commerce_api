@@ -7,9 +7,12 @@ const {
   authenticateTokenAndAuthorization,
   authenticateTokenAndUserId,
   authenticateWishlist,
+  authenticateToken,
 } = require("../middlewares/verifyToken");
 const User = require("./models/User");
 const Wishlist = require("./models/Wishlist");
+const Follower = require("./models/Follower");
+
 const validateSchema = require("../middlewares/validateSchema");
 const updateUserSchema = require("../users/schemas/updateUserSchema");
 
@@ -107,8 +110,33 @@ router.get("/all", authenticateTokenAndAdmin, async (req, res) => {
   res.send(users);
 });
 
+router.get("/userList", async (req, res) => {
+  const users = await User.findAll();
+  res.send(users);
+});
+
+router.get("/userList/:id", authenticateTokenAndId, async (req, res) => {
+  const users = await User.findAll();
+  const id = req.user.id;
+  const following = await Follower.findAll({
+    where: {
+      followerId: id,
+    },
+  });
+  const followerIdSet = new Set(following.map((follower) => follower.userId));
+
+  console.log(JSON.stringify(typeof followerIdSet));
+  const userWithFollowData = users.map((user) => ({
+    ...user.dataValues,
+    isFollowing: followerIdSet.has(user.id),
+  }));
+  console.log(JSON.stringify(userWithFollowData));
+  res.send(userWithFollowData);
+});
+
 // Get user by id
-router.get("/:id", authenticateTokenAndId, async (req, res) => {
+router.get("/:id", authenticateToken, async (req, res) => {
+  console.log("id = ", req.params.id);
   let user = await User.findByPk(req.params.id);
   if (!user) {
     return res.status(404).send("User not found");
@@ -175,5 +203,80 @@ router.get(
     }
   },
 );
+
+router.get("/following/:userId", authenticateToken, async (req, res) => {
+  try {
+    const followerId = req.params.userId;
+    const following = await Follower.findAll({
+      where: {
+        followerId: followerId,
+      },
+    });
+
+    const followingUsers = await User.findAll({
+      where: {
+        id: following.map((f) => f.userId),
+      },
+    });
+    res.send(followingUsers);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+router.get("/followers/:userId", authenticateToken, async (req, res) => {
+  try {
+    const followingId = req.params.userId;
+    const followers = await Follower.findAll({
+      where: {
+        userId: followingId,
+      },
+    });
+
+    const followerUsers = await User.findAll({
+      where: {
+        id: followers.map((f) => f.followerId),
+      },
+    });
+    res.send(followerUsers);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+router.post("/follow/:followeeId", authenticateToken, async (req, res) => {
+  try {
+    const { followeeId } = req.params;
+    const followerId = req.user.id;
+    const exists = await Follower.findOne({
+      where: { userId: followeeId, followerId },
+    });
+    if (!exists) {
+      await Follower.create({ userId: followeeId, followerId });
+      res.send("Followed successfully");
+    } else {
+      res.status(400).send("Already following this user");
+    }
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+router.delete("/unfollow/:followeeId", authenticateToken, async (req, res) => {
+  try {
+    const { followeeId } = req.params;
+    const followerId = req.user.id;
+    const result = await Follower.destroy({
+      where: { userId: followeeId, followerId },
+    });
+    if (result > 0) {
+      res.send("Unfollowed successfully");
+    } else {
+      res.status(404).send("Not following this user");
+    }
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
 
 module.exports = router;
